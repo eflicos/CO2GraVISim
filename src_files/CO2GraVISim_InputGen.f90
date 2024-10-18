@@ -17,7 +17,7 @@ program CO2GraVISim_InputGen
    real(wp), parameter :: PI = 3.14159265358979
    real(wp), dimension(:,:), allocatable :: ceil_topo, base_topo, poro, perm!, Q
    real(wp), dimension(:), allocatable :: x_vect, y_vect
-   integer :: nx, ny, i, j, io, ierror1, ierror2, Poro_type
+   integer :: nx, ny, i, j, io, ierror1, ierror2, Poro_type, top_type
    real(wp) :: dx, dy, perm_scale
 
    !For the checkerboard pattern
@@ -27,6 +27,9 @@ program CO2GraVISim_InputGen
 
    !For the sloped topography
    real(wp) :: slope_angle_x, slope_angle_y   !Slope angles for reservoir in x and y directions
+   
+   !For sinusoidal topography
+   real(wp) :: top_ampl_x, top_ampl_y, top_wl_x, top_wl_y, top_wn_x, top_wn_y
 
    !Input file
    character(50)  ::  grid_params_file = "./Input/grid_parameters.txt"
@@ -199,21 +202,80 @@ program CO2GraVISim_InputGen
 
 
    ! -- Reservoir Topography -----------------------------------------------------------------------------------------
+   
+   !Ask the user to choose one of the preset topography types:
+   ! 1)Flat 2)Sloped 3)Sinusoidal
+   write(*,*) 'Choose a topography type:'
+   write(*,*) '1)Flat 2)Sloped 3)Sinusoidal'
 
-   write(*,*) 'Choose a topographic slope in x:'
-   read *, slope_angle_x
-   write(*,*) 'Choose a topographic slope in y:'
-   read *, slope_angle_y
+   read(*,'(i10)',iostat=ierror1) top_type
 
-   !Ceiling topography
-   ceil_topo = 0._wp
-   !Slope of specified angles in the x and y directions
-   do i=0,nx-1
-      do j=0,ny-1
-         ceil_topo(i,j) = tan(slope_angle_x *pi/180._wp) * dx * (i - (nx-1)/2) &
-         &              + tan(slope_angle_y *pi/180._wp) * dy * (j - (ny-1)/2)
-      end do
-   end do
+
+
+   select Case (top_type)
+       case (1)
+            write(*,*) 'You chose Flat (1)'
+            ceil_topo = 0._wp
+        
+        case (2)
+            write(*,*) 'You chose sloped'
+            write(*,*) 'Choose a topographic slope in x:'
+            read *, slope_angle_x
+            write(*,*) 'Choose a topographic slope in y:'
+            read *, slope_angle_y
+
+            !Ceiling topography
+            ceil_topo = 0._wp
+            !Slope of specified angles in the x and y directions
+            do i=0,nx-1
+                do j=0,ny-1
+                    ceil_topo(i,j) = tan(slope_angle_x *pi/180._wp) * dx * (i - (nx-1)/2) &
+                    &              + tan(slope_angle_y *pi/180._wp) * dy * (j - (ny-1)/2)
+                end do
+            end do
+        
+        case (3)
+            write(*,*) 'You chose sinusoidal'
+            write(*,*) 'Grid params (nx,ny,dx,dy): ', nx,ny,dx,dy
+            write(*,*) 'Choose a wavelength in x:'
+            read *, top_wl_x
+            write(*,*) 'Choose an amplitude in x:'
+            read *, top_ampl_x
+            write(*,*) 'Choose a wavelength in y:'
+            read *, top_wl_y
+            write(*,*) 'Choose an amplitude in y:'
+            read *, top_ampl_y
+            write(*,*) 'Choose overall slope in x: (in degrees)'
+            read *, slope_angle_x
+            write(*,*) 'Choose overall slope in y: (in degrees)'
+            read *, slope_angle_y
+            
+            if (top_wl_x==0) then
+                top_wn_x = 0
+            else
+                top_wn_x = 2*pi / top_wl_x
+            end if
+            
+            if (top_wl_y==0) then
+                top_wn_y = 0
+            else
+                top_wn_y = 2*pi / top_wl_y
+            end if
+            
+            ceil_topo = 0._wp
+            do i=0,nx-1
+                do j=0,ny-1
+                    ceil_topo(i,j) = tan(slope_angle_x *pi/180._wp) * dx * (i - (nx-1)/2) + tan(slope_angle_y *pi/180._wp) &
+                                   & * dy * (j - (ny-1)/2) + top_ampl_x * sin(top_wn_x * dx * i) &
+                                   & + top_ampl_y * sin(top_wn_y * dy * j)
+                end do
+            end do
+    
+    case default
+        write(*,*) 'You chose incorrectly!'
+        stop
+    
+    end select
 
    !Basement Topography
    base_topo = ceil_topo + 1._wp
