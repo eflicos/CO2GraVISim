@@ -1,0 +1,4 @@
+*.png
+*__pycache__*
+Output/Current_Pressure/P*.txt
+Output/Current_Thickness/h*.txt
