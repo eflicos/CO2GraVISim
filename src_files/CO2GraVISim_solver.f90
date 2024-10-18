@@ -81,11 +81,19 @@ contains
       do while ((t < tmax) .and. (it < itermax))
 
          ! Check if the current has passed through the basement
-         if ( any( h > 1.01_wp * D0 ) ) then
-            print '("!!!  t = ", f10.5, ", h_max = ", f10.5, ", P_max = ", e10.5, " !!!")', &
-            &  t, maxval(h), maxval(abs(P))
-            stop
-         end if
+         ! if ( any( h > 1.01_wp * D0 ) ) then
+            ! print '("!!!  t = ", f10.5, ", h_max = ", f10.5, ", P_max = ", e10.5, " !!!")', &
+            ! &  t, maxval(h), maxval(abs(P
+            
+            ! ! stop timer
+            ! call cpu_time(finish)
+
+            ! print '("-------------------------------------")'
+            ! print '("Time taken to run = ",f8.3," seconds.")', finish - start
+            ! print '("-------------------------------------")'
+            
+            ! stop
+         ! end if
 
          ! Update the injection flux array
          call generate_flux_array(Q,flux_idx,t)
@@ -254,7 +262,7 @@ contains
       !Total flux term - combination of injection term and convective dissolution term
       Forcing_term_h = Q/(dx*dy) - q_dissolve*Dissolution_array
 
-      call Pressure_solve(Pt2, Pt1, ht1, Q, P_iter_vals(0))
+      ! call Pressure_solve(Pt2, Pt1, ht1, Q, P_iter_vals(0))
       call h_coefficients(ht1, Pt2, h_res, h_old, cxp_h, cxm_h, cyp_h, cym_h, ct_h)
       call ADI_x_solve(ht2, ht1, cxp_h, cxm_h, cyp_h, cym_h, ct_h, Forcing_term_h, dt_4)
 
@@ -263,7 +271,7 @@ contains
       Dissolution_array = merge(1._wp, 0._wp, (ht1 > 0._wp) .and. (h_res <= 0._wp) )
       Forcing_term_h = Q/(dx*dy) - q_dissolve*Dissolution_array
 
-      call Pressure_solve(Pt2, Pt1, ht2, Q, P_iter_vals(1))
+      ! call Pressure_solve(Pt2, Pt1, ht2, Q, P_iter_vals(1))
       call h_coefficients(ht2, Pt2, h_res, h_old, cxp_h, cxm_h, cyp_h, cym_h, ct_h)
       call ADI_x_solve(ht2, ht1, cxp_h, cxm_h, cyp_h, cym_h, ct_h, Forcing_term_h, dt_2)
 
@@ -275,7 +283,7 @@ contains
       Dissolution_array = merge(1._wp, 0._wp, (ht2 > 0._wp) .and. (h_res <= 0._wp) )
       Forcing_term_h = Q/(dx*dy) - q_dissolve*Dissolution_array
 
-      call Pressure_solve(Pt1, Pt2, ht2, Q, P_iter_vals(2))
+      ! call Pressure_solve(Pt1, Pt2, ht2, Q, P_iter_vals(2))
       call h_coefficients(ht2, Pt1, h_res, h_cur, cxp_h, cxm_h, cyp_h, cym_h, ct_h)
       call ADI_y_solve(ht1, ht2, cxp_h, cxm_h, cyp_h, cym_h, ct_h, Forcing_term_h, dt_4)
 
@@ -284,7 +292,7 @@ contains
       Dissolution_array = merge(1._wp, 0._wp, (ht2 > 0._wp) .and. (h_res <= 0._wp) )
       Forcing_term_h = Q/(dx*dy) - q_dissolve*Dissolution_array
 
-      call Pressure_solve(Pt1, Pt2, ht1, Q, P_iter_vals(3))
+      ! call Pressure_solve(Pt1, Pt2, ht1, Q, P_iter_vals(3))
       call h_coefficients(ht1, Pt1, h_res, h_cur, cxp_h, cxm_h, cyp_h, cym_h, ct_h)
       call ADI_y_solve(ht1, ht2, cxp_h, cxm_h, cyp_h, cym_h, ct_h, Forcing_term_h, dt_2)
 
