@@ -7,7 +7,7 @@
 
 # Generated with ChatGPT 3.5's help!
 
-baseFolder="./batch_runs/run_"
+baseFolder="./batch_run_test/run_"
 processScript="./CO2GraVISim_single_run"
 
 
