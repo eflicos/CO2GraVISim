@@ -13,8 +13,8 @@ import generate_topography as gtop
 # Edit these as appropriate for different runs
 topdir = './batch_run_test/' # top level directory for batch runs
 commonfiles = 'Common_files/' # location of common files shared across batches - this has all param defaults, then copied into all dirs
-theta_range_deg = 0.1 # in degrees - translated to radians below
-ampl_range = [0.01,0.02]
+theta_range_deg = 2 # in degrees - translated to radians below
+ampl_range = [0.01,0.02,0.03,0.04,0.05]
 
 # Do not edit these
 theta_range = np.array(theta_range_deg) * np.pi/180
@@ -42,6 +42,12 @@ top_wl_x = 1
 top_ampl_y = 0
 top_wl_y = 0
 
+perm = np.ones((nx,ny))
+poro = np.ones((nx,ny))
+
+np.savetxt(topdir+commonfiles+'permeability.txt',perm.T)
+np.savetxt(topdir+commonfiles+'porosity.txt',poro.T)
+
 # #x and y axis values
 # x = np.arange(-(nx-1)/2.0,(nx-1)/2.0+1.0)*dx
 # y = np.arange(-(ny-1)/2.0,(ny-1)/2.0+1.0)*dy
@@ -55,17 +61,20 @@ for i in range(nvar):
     top_ampl_x = theta_ampl_range[i,1]
     
     # Generate topography
-    top = gtop.sinusoidal(nx,ny,dx,dy,Q_x,Q_y,theta,top_ampl_x,top_wl_x,top_ampl_y,top_wl_y)
+    top,base = gtop.sinusoidal(nx,ny,dx,dy,Q_x,Q_y,theta,top_ampl_x,top_wl_x,top_ampl_y,top_wl_y)
     
     # Create input and output directories
     this_dir = topdir+'run_'+str(i+1)+'/'
     Path(this_dir+'Input/').mkdir(parents=True, exist_ok=True)
-    Path(this_dir+'Output/').mkdir(parents=True, exist_ok=True)
-    
+    Path(this_dir+'Output/Current_Pressure/').mkdir(parents=True, exist_ok=True)
+    Path(this_dir+'Output/Current_Thickness/').mkdir(parents=True, exist_ok=True)
+    Path(this_dir+'Output/Other/').mkdir(parents=True, exist_ok=True)
+
     # Copy everything from commonfiles into this_dir
     copy_tree(topdir+commonfiles,this_dir+'Input/')
     # Save topog
-    np.savetxt(this_dir+'/Input/ceil_topo.txt',top)
+    np.savetxt(this_dir+'/Input/ceil_topo.txt',top.T)
+    np.savetxt(this_dir+'/Input/base_topo.txt',base.T)
     # Save theta, ampl pair
     np.savetxt(this_dir+'/Input/theta_ampl_x.txt',theta_ampl_range[i])
     
