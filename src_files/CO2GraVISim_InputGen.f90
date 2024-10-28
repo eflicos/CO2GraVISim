@@ -229,7 +229,7 @@ program CO2GraVISim_InputGen
             !Slope of specified angles in the x and y directions
             do i=0,nx-1
                 do j=0,ny-1
-                    ceil_topo(i,j) = tan(slope_angle_x *pi/180._wp) * dx * (i - (nx-1)/2) &
+                    ceil_topo(i,j) = - tan(slope_angle_x *pi/180._wp) * dx * (i - (nx-1)/2) &
                     &              + tan(slope_angle_y *pi/180._wp) * dy * (j - (ny-1)/2)
                 end do
             end do
@@ -265,7 +265,7 @@ program CO2GraVISim_InputGen
             ceil_topo = 0._wp
             do i=0,nx-1
                 do j=0,ny-1
-                    ceil_topo(i,j) = tan(slope_angle_x *pi/180._wp) * dx * (i - (nx-1)/2) + tan(slope_angle_y *pi/180._wp) &
+                    ceil_topo(i,j) = - tan(slope_angle_x *pi/180._wp) * dx * (i - (nx-1)/2) + tan(slope_angle_y *pi/180._wp) &
                                    & * dy * (j - (ny-1)/2) + top_ampl_x * sin(top_wn_x * dx * i) &
                                    & + top_ampl_y * sin(top_wn_y * dy * j)
                 end do

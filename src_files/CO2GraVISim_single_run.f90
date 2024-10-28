@@ -106,8 +106,8 @@ program CO2GraVISim_single_run
    call save_profile_array(h_res_array,"/Current_Thickness/h_res")
 
 
-   write(*,*) ' - saving ambient pressure profiles'
-   call save_profile_array(P_array,"/Current_Pressure/P")
+!   write(*,*) ' - saving ambient pressure profiles'
+!   call save_profile_array(P_array,"/Current_Pressure/P")
 
 
    write(*,*) ' - saving plot times'
