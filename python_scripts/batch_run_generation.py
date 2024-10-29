@@ -10,23 +10,23 @@ from datetime import datetime
 import numpy as np
 from itertools import product
 
-from brg.brg_grid_parameters import nx, ny, dx, dy
-from brg.brg_flow_parameters import flow_params, N_flow
-from brg.brg_BC_parameters import h_BCs, P_BCs
-from brg.brg_plot_times import pt_waypoints, pt_intervals
-from brg.brg_topography_parameters import topo_params, N_topo
-from brg.brg_poro_and_perm_parameters import poro_perm_params, N_poro_perm
-from brg.brg_injection_parameters import (
-    n_inj_locs,
-    inj_loc_idxs,
-    n_flux_vals,
-    flux_times,
-    flux_vals,
-    N_flux,
-)
+# from brg.brg_grid_parameters import nx, ny, dx, dy
+# from brg.brg_flow_parameters import flow_params, N_flow
+# from brg.brg_BC_parameters import h_BCs, P_BCs
+# from brg.brg_plot_times import pt_waypoints, pt_intervals
+# from brg.brg_topography_parameters import topo_params, N_topo
+# from brg.brg_poro_and_perm_parameters import poro_perm_params, N_poro_perm
+# from brg.brg_injection_parameters import (
+    # n_inj_locs,
+    # inj_loc_idxs,
+    # n_flux_vals,
+    # flux_times,
+    # flux_vals,
+    # N_flux,
+# )
 
-from input_generation import input_gen
-from Generate_Plot_times import pt_generate
+# from input_generation import input_gen
+# from Generate_Plot_times import pt_generate
 
 
 def archive_existing_runs(target_directory):
@@ -56,12 +56,12 @@ def copy_common_files(input_directory, common_files_dir):
             shutil.copy(file_path, input_directory)
 
 
-def create_folders(target_directory, num_runs):
+def create_folders(target_directory, num_runs, archive_boo):
 
     # Make sure the target directory exists, if not, create it
     if not os.path.exists(target_directory):
         os.makedirs(target_directory)
-    else:
+    elif archive_boo:
         # Archive any existing run_N directories
         archive_existing_runs(target_directory)
 
@@ -147,10 +147,17 @@ def create_injection_locations(run_directory, n, idxs):
             ]
         )
         file.write(f"{n}\n")
-        for k in range(0, n):
+        
+        # I get an error if n=1 in for loop, so separating out into own case
+        if n==1:
             file.write(
-                f"{idxs[k][0]:d}".lstrip() + " " + f"{idxs[k][1]:d}".lstrip() + "\n"
+                f"{idxs[0]:d}".lstrip() + " " + f"{idxs[1]:d}".lstrip() + "\n"
             )
+        else:
+            for k in range(0, n):
+                file.write(
+                    f"{idxs[k][0]:d}".lstrip() + " " + f"{idxs[k][1]:d}".lstrip() + "\n"
+                )
 
 
 def create_injection_profile(run_directory, n, times, vals):
